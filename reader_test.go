@@ -8,6 +8,59 @@ import (
 	"testing"
 )
 
+func TestReade_Seek(t *testing.T) {
+	rs := bytes.NewReader([]byte(
+		"123456789qwertyuiopasdfghjklzxcvbnm",
+	))
+	var k2 = make([]byte, 2)
+	rs.Read(k2)
+
+	rr := NewReader(rs)
+
+	rr2 := bytes.NewReader([]byte(
+		reverseStr("3456789qwertyuiopasdfghjklzxcvbnm"),
+	))
+
+	seek, err := rr.Seek(-25, io.SeekEnd)
+	if err != nil {
+		panic(err)
+	}
+	seek2, err := rr2.Seek(-25, io.SeekEnd)
+	if err != nil {
+		panic(err)
+	}
+	if seek2 != seek {
+		t.Fatalf("返回错误不一致 %v,%v", seek, seek2)
+	}
+
+	for {
+		var k = make([]byte, 3)
+		var k22 = make([]byte, 3)
+
+		n, er := rr.Read(k)
+		n2, er2 := rr2.Read(k22)
+		if strErr(er) != strErr(er2) {
+			t.Fatalf("返回错误不一致 %v,%v", er, er2)
+		}
+		if n != n2 {
+			t.Fatalf("返回n不一致 %v,%v", n, n2)
+		}
+
+		ks1, ks2 := string(k[:n]), string(k22[:n2])
+
+		//fmt.Println(ks1, ks2)
+		if string(k[:n]) != string(k22[:n2]) {
+			t.Fatalf("读取不一致 %v,%v", ks1, ks2)
+		}
+		if er == io.EOF {
+			break
+		}
+	}
+
+	return
+
+}
+
 func TestReader_Read(t *testing.T) {
 	rs := bytes.NewReader([]byte(
 		"123454-3-2-1-",
@@ -81,6 +134,13 @@ func reverseStr(s string) string {
 	return string(a)
 }
 
-func ReverseRead(name string, lineNum uint) ([]string, error) {
-	return nil, nil
+//func ReverseRead(name string, lineNum uint) ([]string, error) {
+//	return nil, nil
+//}
+
+func strErr(err error) string {
+	if err == nil {
+		return "nil"
+	}
+	return err.Error()
 }
