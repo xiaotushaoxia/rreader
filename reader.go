@@ -117,7 +117,7 @@ func failedTo(opt string, err error) error {
 	if err == nil {
 		return nil
 	}
-	return fmt.Errorf("failed to "+opt+" %w", err)
+	return fmt.Errorf("failed to "+opt+": %w", err)
 }
 
 func reverse[T any](is []T) []T {
